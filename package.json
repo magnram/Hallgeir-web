@@ -37,6 +37,7 @@
     "cypress": "^10.4.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "scss": "^0.2.4",
     "tiny-invariant": "^1.2.0"
   },
   "devDependencies": {

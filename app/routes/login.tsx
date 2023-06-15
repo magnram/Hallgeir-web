@@ -67,13 +67,13 @@ export const action: ActionFunction = async ({ request }) => {
     request,
     userId: user.id,
     remember: remember === "on" ? true : false,
-    redirectTo: typeof redirectTo === "string" ? redirectTo : "/notes",
+    redirectTo: typeof redirectTo === "string" ? redirectTo : "/home",
   });
 };
 
 export default function Login() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/notes";
+  const redirectTo = searchParams.get("redirectTo") ?? "/home";
 
   const actionData = useActionData() as ActionData;
   const emailRef = React.useRef<HTMLInputElement>(null);
@@ -90,12 +90,12 @@ export default function Login() {
   }, [actionData]);
 
   return (
-    <div className="flex min-h-full flex-col justify-center">
+    <div className="flex min-h-full flex-col justify-center bg-violet-300">
       <div className="mx-auto w-full max-w-md px-8">
         <Form method="post" className="space-y-6" noValidate>
           <div>
             <label className="text-sm font-medium" htmlFor="email">
-              <span className="block text-gray-700">Email Address</span>
+              <span className="block text-gray-700">Epost-addresse</span>
               {actionData?.errors?.email && (
                 <span className="block pt-1 text-red-700" id="email-error">
                   {actionData?.errors?.email}
@@ -115,9 +115,9 @@ export default function Login() {
           </div>
           <div>
             <label className="text-sm font-medium" htmlFor="password">
-              <span className="block text-gray-700">Password</span>
+              <span className="block text-gray-700">Passord</span>
               <span className="block font-light text-gray-700">
-                Must have at least 6 characters.
+                Må ha minst 6 tegn.
               </span>
               {actionData?.errors?.password && (
                 <span className="pt-1 text-red-700" id="password-error">
@@ -137,16 +137,16 @@ export default function Login() {
             />
           </div>
           <button
-            className="w-full rounded bg-blue-500  py-2 px-4 text-white hover:bg-blue-600 focus:bg-blue-400"
+            className="w-full rounded bg-violet-500  py-2 px-4 text-white hover:bg-violet-600 focus:bg-violet-400"
             type="submit"
           >
-            Log in
+            Logg inn
           </button>
           <input type="hidden" name="redirectTo" value={redirectTo} />
           <div className="flex items-center justify-between">
             <div className="flex items-center">
               <input
-                className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="h-4 w-4 rounded border-gray-300 text-violet-600 focus:ring-violet-500"
                 id="remember"
                 name="remember"
                 type="checkbox"
@@ -155,16 +155,16 @@ export default function Login() {
                 className="ml-2 block text-sm text-gray-900"
                 htmlFor="remember"
               >
-                Remember me
+                Husk meg
               </label>
             </div>
             <div className="text-center text-sm text-gray-500">
-              Don't have an account?{" "}
+              Har du ikke en bruker?{" "}
               <Link
-                className="text-blue-500 underline"
+                className="text-violet-500 underline"
                 to={{ pathname: "/join" }}
               >
-                Sign up
+                Registrer
               </Link>
             </div>
           </div>
