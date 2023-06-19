@@ -1,4 +1,3 @@
-import { redirect } from "@remix-run/node";
 import { Link } from "@remix-run/react";
 import { useOptionalUser } from "~/utils";
 
@@ -6,10 +5,10 @@ export default function Index() {
   const user = useOptionalUser();
 
   return (
-    <main className="relative min-h-screen bg-white flex items-center sm:justify-center bg-violet-300">
+    <main className="relative min-h-full sm:bg-white flex items-center sm:justify-center bg-violet-300 overflow-y-scroll no-scrollbar">
       <div className="relative w-full">
-        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-          <div className="relative sm:overflow-hidden sm:rounded-2xl h-[30rem]">
+        <div className="mx-auto max-w-4xl sm:max-h-4xl sm:px-6 lg:px-8">
+          <div className="relative sm:overflow-hidden sm:rounded-2xl">
             <div className="absolute inset-0 shadow-xl invisible sm:visible">
               <img
                 className="h-full w-full object-cover"
@@ -30,7 +29,7 @@ export default function Index() {
                 alt="BTS playing on stage with the group leaving in action poses"
               />
               <p className="mx-auto mt-6 max-w-lg text-center text-xl text-white sm:max-w-3xl">
-                Denne appen lar deg laste opp regninger og få full oversikt over utlegg og forbruk.
+                Hallgeir lar deg laste opp regninger og få full oversikt over utlegg og forbruk.
               </p>
               <div className="mx-auto mt-10 max-w-sm sm:flex sm:max-w-none sm:justify-center">
                 {user ? (

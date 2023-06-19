@@ -1,5 +1,5 @@
 {
-  "name": "kpop-stack-template",
+  "name": "hallgeir",
   "private": true,
   "description": "",
   "license": "",
@@ -35,10 +35,13 @@
     "@testing-library/cypress": "^8.0.3",
     "bcryptjs": "^2.4.3",
     "cypress": "^10.4.0",
+    "moment": "^2.29.4",
+    "papaparse": "^5.4.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "scss": "^0.2.4",
-    "tiny-invariant": "^1.2.0"
+    "tiny-invariant": "^1.2.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@remix-run/dev": "^1.6.8",
@@ -46,6 +49,7 @@
     "@remix-run/serve": "^1.6.8",
     "@types/bcryptjs": "^2.4.2",
     "@types/eslint": "^8.4.1",
+    "@types/papaparse": "^5.3.7",
     "@types/react": "^17.0.24",
     "@types/react-dom": "^17.0.9",
     "cross-env": "^7.0.3",

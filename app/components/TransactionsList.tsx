@@ -1,5 +1,5 @@
-import { ChangeEvent } from 'react';
-import { Member, Transaction } from '~/routes/home';
+import type { ChangeEvent } from 'react';
+import type { Member, Transaction } from '~/routes/home';
 
 interface TransactionCardProps extends Transaction {
   onMemberChange: (id: number, memberId: number) => void;
