@@ -1,18 +1,8 @@
-# Remix K-pop Stack
+# Hallgeir
 
-![k-pop site image](https://res.cloudinary.com/dzkoxrsdj/image/upload/v1648844684/CleanShot_2022-04-01_at_16.23.40_2x_oo3ppe.jpg)
+<img width="820" alt="image" src="https://github.com/magnram/Hallgeir/assets/14547908/8e6e4e0b-01e5-4474-a18b-15e3be65f01b">
 
-Deployed Site: [kpop-stack.netlify.app](https://kpop-stack.netlify.app)
-
-Learn more about [Remix Stacks](https://remix.run/stacks).
-
-```
-npx create-remix --template netlify-templates/kpop-stack
-```
-
-Click this button to create a new Github repo, new Netlify project and deploy this stack to a [CDN](https://jamstack.org/glossary/cdn/).
-
-[![Deploy to Netlify Button](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/netlify-templates/kpop-stack)
+Deployed Site: [hallgeir.netlify.app](https://hallgeir.netlify.app)
 
 ## What's in the stack
 
@@ -23,8 +13,6 @@ Click this button to create a new Github repo, new Netlify project and deploy th
 - [Prettier](https://prettier.io) code formatting
 - [ESLint](https://eslint.org) linting
 - [TypeScript](https://typescriptlang.org) static typing
-
-Not a fan of bits of the stack? Fork it, change it, and use `npx create-remix --template your/repo`! Make it your own.
 
 ---
 
