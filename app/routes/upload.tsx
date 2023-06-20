@@ -34,7 +34,7 @@ export default function FileUpload() {
 	const colNameWithRows =  data && Object.keys(data[0]).map((colName) => [colName, data.map((row) => row[colName])]) as [string, string[]]
 	const dateColumns = colNameWithRows && colNameWithRows.filter((a) => a[1].length == convertDates(a[1] as unknown as string[])?.filter(b => b).length).map(a => a[0]);
 	const amountColumns = colNameWithRows && colNameWithRows
-		.filter((a) => (a[1].length == (a[1] as unknown as string[]).filter(b => b.match("[0-9]+(\.|,)[0-9]+") && parseInt(b) > -60000 && parseInt(b) < 60000).length))
+		.filter((a) => (a[1].length == (a[1] as unknown as string[]).filter(b => b.match("[0-9]+(.|,)[0-9]+") && parseInt(b) > -60000 && parseInt(b) < 60000).length))
 		.map(a => a[0])
 		.filter(a => !dateColumns?.includes(a));
 	if(!dateCol && dateColumns?.length == 1) setDateCol(dateColumns[0]);
