@@ -24,7 +24,7 @@ const ColumnPreview = ({data, requiredColumns, selectedColumns}: ColumnPreviewPr
 						{ data.map((row, idx) => (
 							<tr key={idx} className="bg-white border-b">
 									{selectedColumns.map((columnName, idx) => (
-										<td key={idx} className="px-3 py-4">
+										<td key={idx} className="px-3 py-2">
 											{row[columnName]}
 										</td>
 									))}

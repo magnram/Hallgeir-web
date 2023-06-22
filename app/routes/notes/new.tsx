@@ -5,7 +5,7 @@ import { createNote } from "~/models/note.server";
 import { requireUserId } from "~/session.server";
 
 export const action: ActionFunction = async ({ request }) => {
-  const userId = await requireUserId(request);
+  const user_id = await requireUserId(request);
 
   const formData = await request.formData();
   const title = formData.get("title");
@@ -19,7 +19,7 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ errors: { body: "Body is required" } }, { status: 400 });
   }
 
-  const note = await createNote({ title, body, userId });
+  const note = await createNote({ title, body, user_id });
   return redirect(`/notes/${note.id}`);
 };
 

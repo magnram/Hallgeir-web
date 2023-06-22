@@ -1,23 +1,37 @@
-import { Form, NavLink, useLocation, useNavigate } from "@remix-run/react";
+import type { LoaderArgs} from "@remix-run/node";
 import type { ChangeEvent, ReactNode} from "react";
-import { useState } from "react";
-import TransactionsList from "~/components/TransactionsList";
-import { useUser } from "~/utils";
+import type { Transaction} from "~/models/transaction.server";
 
-/*
+import { useState } from "react";
+import { Form, NavLink, useLoaderData, useLocation, useNavigate } from "@remix-run/react";
+import { json } from "@remix-run/node";
+import { requireUserId } from "~/session.server";
+import { useUser } from "~/utils";
+import TransactionsList from "~/components/TransactionsList";
+import { getTransactionListItems } from "~/models/transaction.server";
+import type { Account} from "~/models/account.server";
+import { getAccountListItems } from "~/models/account.server";
+import type { Member } from "~/models/member.server";
+import { getMemberListItems } from "~/models/member.server";
+
+
 type LoaderData = {
-  accountListItems: Account[];
+  transactionListItems: Transaction[];
+	accountListItems: Account[];
+	memberListItems: Member[];
 };
 
 export async function loader ({ request }: LoaderArgs) {
-  const userId = await requireUserId(request);
-  const accountListItems = await getAccountListItems({ userId });
-  return json({ accountListItems });
+  const user_id = await requireUserId(request);
+  const transactionListItems = await getTransactionListItems({ user_id });
+	const accountListItems = await getAccountListItems({ user_id });
+	const memberListItems = await getMemberListItems({ user_id });
+
+	return json({ transactionListItems, accountListItems, memberListItems });
 };
-*/
 
 interface RadioButtonProps {
-  id: number;
+  id: string;
   name: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   isChecked: boolean;
@@ -27,7 +41,7 @@ interface RadioButtonProps {
 
 const RadioButton: React.FC<RadioButtonProps> = ({ children, id, name, onChange, isChecked, disabled }) => (
   <label
-    className={`${disabled ? 'bg-gray-100' : 'cursor-pointer'} flex flex-col items-center py-1 m-1 border-2 space-y-1 w-24 ${isChecked && 'border-green-500 bg-green-100'}`}
+    className={`${disabled ? 'bg-gray-100' : 'cursor-pointer'} flex flex-col items-center p-1 m-1 border-2 space-y-1 max-w-[6rem] ${isChecked && 'border-green-500 bg-green-100'}`}
     htmlFor={name + id.toString()}
   >
     <input
@@ -44,59 +58,14 @@ const RadioButton: React.FC<RadioButtonProps> = ({ children, id, name, onChange,
   </label>
 );
 
-
-interface Account {
-  id: number;
-  name: string;
-}
-
-export interface Member {
-  id: number;
-  name: string;
-}
-
-export interface Transaction {
-  id: number;
-  name: string;
-  amount: number;
-  completed: boolean;
-  accountId: number;
-  memberId?: number;
-}
-
-const defaultTransactions: Transaction[] = [
-  { id: 1, name: 'Hyre As* Bid:744426 Oslo', amount: 200, completed: false, accountId: 1 },
-  { id: 2, name: 'Kiwi 364 Byporten Oslo', amount: 120, completed: false, accountId: 2 },
-  { id: 3, name: 'Hyre As* Bid:744426 Oslo', amount: 1000, completed: false, accountId: 1 },
-  { id: 4, name: 'Spotifyse Stockholm', amount: 150, completed: false, accountId: 1 },
-  { id: 5, name: 'Uavhengig Taxi Oslo', amount: 50, completed: false, accountId: 2 },
-  { id: 6, name: 'Matchi*matchi - 5657272 Goteborg', amount: 250, completed: false, accountId: 2 },
-  { id: 7, name: 'Point 5013010 Stjoerdal', amount: 300, completed: false, accountId: 2 },
-  { id: 8, name: 'Scandic Bystranda Fo 78 Kristiansand', amount: 75, completed: false, accountId: 1 },
-  { id: 9, name: 'Kiwi 713 Markens Kristiansand S', amount: 90, completed: false, accountId: 1 },
-  { id: 10, name: 'Scandic Bystranda Fo 78 Kristiansand', amount: 500, completed: false, accountId: 2 }
-]; 
-
-export default function HomePage() {
-  //const data = useLoaderData<typeof loader>() as LoaderData;
-
+export default function TransactionsPage() {
+  const { transactionListItems, accountListItems, memberListItems } = useLoaderData<typeof loader>() as LoaderData;
+	const [transactions, setTransactions] = useState<Transaction[]>(transactionListItems);
   const [selectedAccount, setSelectedAccount] = useState<string | null>("0");
   const [selectedMember, setSelectedMember] = useState<string | null>("0");
-  const [transactions, setTransactions] = useState(defaultTransactions);
-
-
-  const accounts: Account[] = [
-    { id: 1, name: 'AMEX'},
-    { id: 2, name: 'DNB'}
-  ];
-
-  const members: Member[] = [
-    { id: 1, name: 'Vy' },
-    { id: 2, name: 'Magnus' },
-    { id: 3, name: 'Felles' },
-  ]; 
 
   const handleAccountChange = (event: ChangeEvent<HTMLInputElement>) => {
+		console.log(event.target.value)
     setSelectedAccount(event.target.value);
   };
 
@@ -104,32 +73,31 @@ export default function HomePage() {
     setSelectedMember(event.target.value);
   };
 
-  const handleTransactionsChange = (id: number, memberId: number) => {
-    setTransactions(transactions.map((transaction) => {
-      if (transaction.id === id) {
-        console.log(transaction)
-        if (transaction.memberId === memberId) {
-          console.log("ye")
-          // Create a new object without the memberId property
-          const { memberId, ...rest } = transaction;
-          return rest;
-        } else {
-          // Set the memberId
-          return { ...transaction, memberId };
-        }
-      } else {
-        return transaction;
-      }
-    }));
-  }
+	const handleTransactionMemberChange = async (id: string, member_id: string | null) => {
+		setTransactions(transactions.map(transaction => {
+			if (transaction.id == id) {
+				transaction.member_id = member_id;
+			}
+			return transaction;
+		}));
+
+		fetch('/transactions/setMember', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ id, member_id }),
+		})
+		.then(response => response.json())
+		.then(_ => {})
+		.catch((error) => { console.error('Error:', error) });
+	};
   
   const filteredTransactionsAccount = transactions
-    .filter(transaction => selectedAccount == '0' || selectedAccount == transaction.accountId.toString());
+    .filter(transaction => selectedAccount == '0' || selectedAccount == transaction.account_id);
     
   const filteredTransactions = filteredTransactionsAccount
     .filter(transaction => selectedMember == '0' 
-                        || (transaction.memberId && selectedMember == transaction.memberId.toString())
-                        || (!transaction.memberId && selectedMember == (members.length + 1).toString())
+                        || (transaction.member_id && selectedMember == transaction.member_id.toString())
+                        || (!transaction.member_id && selectedMember == (memberListItems.length + 1).toString())
     );
 
   return (
@@ -141,26 +109,26 @@ export default function HomePage() {
           <div className="flex overflow-x-scroll items-center">
               <RadioButton
                 key={0}
-                id={0}
+                id={"0"}
                 name={"account"}
                 onChange={handleAccountChange}
                 isChecked={selectedAccount === "0"}
               >
                 <p className="text-m text-gray-600">Alle</p>
-                <p className="text-m font-bold text-green-500">{transactions.reduce((partialSum, a) => partialSum + a.amount, 0)} kr</p>
+                <p className="text-m font-bold text-green-500">{Math.round(transactionListItems.reduce((partialSum, a) => partialSum + a.amount, 0)*100)/100} kr</p>
               </RadioButton>
-            {accounts.map((account) => {
-              const amount: number = transactions.filter((a) => a.accountId == account.id && !a.completed).reduce((partialSum, a) => partialSum + a.amount, 0);
+            {accountListItems.map((account) => {
+              const amount: number = transactionListItems.filter((a) => a.account_id == account.id && !a.completed).reduce((partialSum, a) => partialSum + a.amount, 0);
               return (
                 <RadioButton
                   key={account.id}
                   id={account.id}
-                  name={"account"}
+                  name="account"
                   onChange={handleAccountChange}
                   isChecked={selectedAccount === account.id.toString()}
                 >
                   <p className="text-m text-gray-600">{account.name}</p>
-                  <p className="text-m font-bold text-green-500">{amount} kr</p>
+                  <p className="text-sm font-bold text-green-500">{Math.round(amount*100)/100}&nbsp;kr</p>
                 </RadioButton>
               );
             })}
@@ -174,7 +142,7 @@ export default function HomePage() {
           <div className="flex overflow-x-scroll">
               <RadioButton
                 key={0}
-                id={0}
+                id={"0"}
                 disabled={!filteredTransactionsAccount.filter((a) => !a.completed).reduce((partialSum, a) => partialSum + a.amount, 0)}
                 name={"member"}
                 onChange={handleMemberChange}
@@ -182,11 +150,11 @@ export default function HomePage() {
               >
                 <p className="text-m text-gray-600"> Alle </p>
                 <p className="text-m font-bold text-green-500">
-                  {filteredTransactionsAccount.filter((a) => !a.completed).reduce((partialSum, a) => partialSum + a.amount, 0)} kr
+                  {Math.round(filteredTransactionsAccount.filter((a) => !a.completed).reduce((partialSum, a) => partialSum + a.amount, 0)*100)/100}&nbsp;kr
                 </p>
               </RadioButton>
-            {members.map((member) => {
-              const amount: number = filteredTransactionsAccount.filter((a) => a.memberId == member.id && !a.completed).reduce((partialSum, a) => partialSum + a.amount, 0);
+            {memberListItems.map((member) => {
+              const amount: number = filteredTransactionsAccount.filter((a) => a.member_id == member.id && !a.completed).reduce((partialSum, a) => partialSum + a.amount, 0);
               return (
                 <RadioButton
                   key={member.id}
@@ -197,44 +165,43 @@ export default function HomePage() {
                   isChecked={selectedMember === member.id.toString()}
                 >
                   <p className="text-m text-gray-600">{member.name}</p>
-                  <p className="text-m font-bold text-green-500">{amount} kr</p>
+                  <p className="text-m font-bold text-green-500">{Math.round(amount*100)/100}&nbsp;kr</p>
                 </RadioButton>
               );
             })}
               <RadioButton
-                key={members.length+1}
-                id={members.length+1}
+                key={memberListItems.length+1}
+                id={(memberListItems.length+1).toString()}
                 name={"member"}
-                disabled={!filteredTransactionsAccount.filter((a) => !a.completed && !a.memberId).reduce((partialSum, a) => partialSum + a.amount, 0)}
+                disabled={!filteredTransactionsAccount.filter((a) => !a.completed && !a.member_id).reduce((partialSum, a) => partialSum + a.amount, 0)}
                 onChange={handleMemberChange}
-                isChecked={selectedMember === (members.length+1).toString()}
+                isChecked={selectedMember === (memberListItems.length+1).toString()}
               >
                 <p className="text-m text-gray-600"> ? </p>
                 <p className="text-m font-bold text-green-500">
-                  {filteredTransactionsAccount.filter((a) => !a.completed && !a.memberId).reduce((partialSum, a) => partialSum + a.amount, 0)} kr
+                  {Math.round(filteredTransactionsAccount.filter((a) => !a.completed && !a.member_id).reduce((partialSum, a) => partialSum + a.amount, 0)*100)/100}&nbsp;kr
                 </p>
               </RadioButton>
           </div>
         </div>
-        {filteredTransactions.filter(a => !a.memberId).length != 0 &&
-        <div>
-          <h6 className="font-bold text-xs"> Transaksjoner som må tildeles </h6>
-          <TransactionsList 
-            transactions={filteredTransactions.filter(a => !a.memberId)} 
-            setTransactions={handleTransactionsChange}
-            members={members}
-          />
-        </div>}
-        { filteredTransactions.filter(a => a.memberId).length != 0 &&
-        <div>
-          <h6 className="font-bold text-xs"> Tildelte transaksjoner </h6>
-          <TransactionsList 
-            transactions={filteredTransactions.filter(a => a.memberId)} 
-            setTransactions={handleTransactionsChange}
-            members={members}
-          />
-        </div>
-        }
+					{filteredTransactions.filter(a => !a.member_id).length != 0 &&
+					<div>
+						<h6 className="font-bold text-xs"> Transaksjoner som må tildeles </h6>
+						<TransactionsList 
+							transactions={filteredTransactions.filter(a => !a.member_id)} 
+							onMemberChange={handleTransactionMemberChange}
+							members={memberListItems}
+						/>
+					</div>}
+					{ filteredTransactions.filter(a => a.member_id).length != 0 &&
+					<div>
+						<h6 className="font-bold text-xs"> Tildelte transaksjoner </h6>
+						<TransactionsList 
+							transactions={filteredTransactions.filter(a => a.member_id)} 
+							onMemberChange={handleTransactionMemberChange}
+							members={memberListItems}
+						/>
+					</div>}
       </main>
     </div>
   );

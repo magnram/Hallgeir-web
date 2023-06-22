@@ -24,8 +24,8 @@ interface ActionData {
 }
 
 export async function loader({ request }: LoaderArgs) {
-  const userId = await getUserId(request);
-  if (userId) return redirect("/");
+  const user_id = await getUserId(request);
+  if (user_id) return redirect("/");
   return json({});
 };
 
@@ -65,15 +65,15 @@ export const action: ActionFunction = async ({ request }) => {
 
   return createUserSession({
     request,
-    userId: user.id,
+    user_id: user.id,
     remember: remember === "on" ? true : false,
-    redirectTo: typeof redirectTo === "string" ? redirectTo : "/home",
+    redirectTo: typeof redirectTo === "string" ? redirectTo : "/transactions",
   });
 };
 
 export default function Login() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/home";
+  const redirectTo = searchParams.get("redirectTo") ?? "/transactions";
 
   const actionData = useActionData() as ActionData;
   const emailRef = React.useRef<HTMLInputElement>(null);

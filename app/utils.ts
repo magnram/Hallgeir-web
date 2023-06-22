@@ -76,7 +76,7 @@ function findDateFormat(dates: string[]): string {
   return bestFormat!;
 }
 
-export function convertDates(dates: string[]): (Date | null)[] | null {
+export function convertDates(dates: string[]): Date[] | null {
   // Find the format of the dates
   let format = findDateFormat(dates);
   
@@ -94,5 +94,5 @@ export function convertDates(dates: string[]): (Date | null)[] | null {
     }
   });
   
-  return convertedDates;
+  return convertedDates.includes(null) ? null : convertedDates as Date[];
 }

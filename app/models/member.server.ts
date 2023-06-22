@@ -1,26 +1,26 @@
 import type { User } from "./user.server";
 import { supabase } from "./user.server";
 
-export type Account = {
+export type Member = {
   id: string;
   name: string;
 };
 
 
-export async function getAccountListItems({ user_id }: { user_id: User["id"] }) {
+export async function getMemberListItems({ user_id }: { user_id: User["id"] }) {
   const { data } = await supabase
-    .from("accounts")
+    .from("members")
     .select("id, name")
     .eq("user_id", user_id);
   return data;
 }
 
-export async function addAccount({
+export async function addMember({
   name,
   user_id,
-}: Pick<Account, "name"> & { user_id: User["id"] }) {
+}: Pick<Member, "name"> & { user_id: User["id"] }) {
   const { data, error } = await supabase
-    .from("accounts")
+    .from("members")
     .insert([{ name, user_id: user_id }])
     .single();
 
@@ -31,10 +31,10 @@ export async function addAccount({
   return null;
 }
 
-export async function deleteAccount({
+export async function deleteMember({
   id,
   user_id,
-}: Pick<Account, "id"> & { user_id: User["id"] }) {
+}: Pick<Member, "id"> & { user_id: User["id"] }) {
   const { error } = await supabase
     .from("notes")
     .delete({ returning: "minimal" })
@@ -47,12 +47,12 @@ export async function deleteAccount({
   return null;
 }
 
-export async function getAccount({
+export async function getMember({
   id,
   user_id,
-}: Pick<Account, "id"> & { user_id: User["id"] }) {
+}: Pick<Member, "id"> & { user_id: User["id"] }) {
   const { data, error } = await supabase
-    .from("accounts")
+    .from("members")
     .select("*")
     .eq("user_id", user_id)
     .eq("id", id)

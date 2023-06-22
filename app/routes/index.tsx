@@ -13,7 +13,7 @@ export default function Index() {
               <img
                 className="h-full w-full object-cover"
                 src="https://pengeverkstedet.no/pengeverkstedet/wp-content/uploads/2015/12/15temHallgeir_Kvad_5054617a-e1455744894715.jpg"
-                alt="BTS playing on stage with the group leaving in action poses"
+                alt="Hallgeir som blar opp tusenlapper"
               />
               <div className="absolute inset-0 bg-[color:rgba(139,92,246,0.5)] mix-blend-multiply" />
             </div>
@@ -26,7 +26,7 @@ export default function Index() {
               <img
                 className="w-[90%] aspect-video object-cover m-[1rem] rounded-xl sm:hidden"
                 src="https://pengeverkstedet.no/pengeverkstedet/wp-content/uploads/2015/12/15temHallgeir_Kvad_5054617a-e1455744894715.jpg"
-                alt="BTS playing on stage with the group leaving in action poses"
+                alt="Hallgeir som blar opp tusenlapper"
               />
               <p className="mx-auto mt-6 max-w-lg text-center text-xl text-white sm:max-w-3xl">
                 Hallgeir lar deg laste opp regninger og få full oversikt over utlegg og forbruk.
@@ -34,7 +34,7 @@ export default function Index() {
               <div className="mx-auto mt-10 max-w-sm sm:flex sm:max-w-none sm:justify-center">
                 {user ? (
                   <Link
-                    to="/home"
+                    to="/transactions"
                     className="flex items-center justify-center rounded-md border border-transparent bg-white px-4 py-3 text-base font-medium text-violet-700 shadow-sm hover:bg-violet-50 sm:px-8"
                   >
                     Gå videre ({user.email})

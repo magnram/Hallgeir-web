@@ -11,10 +11,10 @@ type LoaderData = {
 };
 
 export async function loader({ request, params }: LoaderArgs) {
-  const userId = await requireUserId(request);
+  const user_id = await requireUserId(request);
   invariant(params.noteId, "noteId not found");
 
-  const note = await getNote({ userId, id: params.noteId });
+  const note = await getNote({ user_id, id: params.noteId });
   if (!note) {
     throw new Response("Not Found", { status: 404 });
   }
@@ -23,10 +23,10 @@ export async function loader({ request, params }: LoaderArgs) {
 };
 
 export const action: ActionFunction = async ({ request, params }) => {
-  const userId = await requireUserId(request);
+  const user_id = await requireUserId(request);
   invariant(params.noteId, "noteId not found");
 
-  await deleteNote({ userId, id: params.noteId });
+  await deleteNote({ user_id, id: params.noteId });
 
   return redirect("/notes");
 };

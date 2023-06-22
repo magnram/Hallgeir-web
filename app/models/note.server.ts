@@ -8,11 +8,11 @@ export type Note = {
   profile_id: string;
 };
 
-export async function getNoteListItems({ userId }: { userId: User["id"] }) {
+export async function getNoteListItems({ user_id }: { user_id: User["id"] }) {
   const { data } = await supabase
     .from("notes")
     .select("id, title")
-    .eq("profile_id", userId);
+    .eq("user_id", user_id);
 
   return data;
 }
@@ -20,11 +20,11 @@ export async function getNoteListItems({ userId }: { userId: User["id"] }) {
 export async function createNote({
   title,
   body,
-  userId,
-}: Pick<Note, "body" | "title"> & { userId: User["id"] }) {
+  user_id,
+}: Pick<Note, "body" | "title"> & { user_id: User["id"] }) {
   const { data, error } = await supabase
     .from("notes")
-    .insert([{ title, body, profile_id: userId }])
+    .insert([{ title, body, user_id: user_id }])
     .single();
 
   if (!error) {
@@ -36,12 +36,12 @@ export async function createNote({
 
 export async function deleteNote({
   id,
-  userId,
-}: Pick<Note, "id"> & { userId: User["id"] }) {
+  user_id,
+}: Pick<Note, "id"> & { user_id: User["id"] }) {
   const { error } = await supabase
     .from("notes")
     .delete({ returning: "minimal" })
-    .match({ id, profile_id: userId });
+    .match({ id, profile_id: user_id });
 
   if (!error) {
     return {};
@@ -52,18 +52,18 @@ export async function deleteNote({
 
 export async function getNote({
   id,
-  userId,
-}: Pick<Note, "id"> & { userId: User["id"] }) {
+  user_id,
+}: Pick<Note, "id"> & { user_id: User["id"] }) {
   const { data, error } = await supabase
     .from("notes")
     .select("*")
-    .eq("profile_id", userId)
+    .eq("profile_id", user_id)
     .eq("id", id)
     .single();
 
   if (!error) {
     return {
-      userId: data.profile_id,
+      user_id: data.profile_id,
       id: data.id,
       title: data.title,
       body: data.body,

@@ -11,8 +11,8 @@ type LoaderData = {
 };
 
 export async function loader ({ request }: LoaderArgs) {
-  const userId = await requireUserId(request);
-  const noteListItems = await getNoteListItems({ userId });
+  const user_id = await requireUserId(request);
+  const noteListItems = await getNoteListItems({ user_id });
   return json({ noteListItems });
 };
 
