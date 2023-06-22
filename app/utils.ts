@@ -96,3 +96,5 @@ export function convertDates(dates: string[]): Date[] | null {
   
   return convertedDates.includes(null) ? null : convertedDates as Date[];
 }
+
+export const capitalizeFirstLetterOfEachWord = (s: string) => s.toLowerCase().replace(/(^\w{1})|(\s+\w{1})/g, letter => letter.toUpperCase());

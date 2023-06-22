@@ -1,27 +1,30 @@
-import type { User } from "./user.server";
 import { supabase } from "./user.server";
 
-export type Member = {
-  id: string;
-  name: string;
+import type { NameAmountItem } from "./transaction.server";
+import type { User } from "./user.server";
+
+export interface Member extends NameAmountItem {
+  id: string
+  description: string
+	amount?: number
 };
 
 
 export async function getMemberListItems({ user_id }: { user_id: User["id"] }) {
   const { data } = await supabase
     .from("members")
-    .select("id, name")
+    .select("id, description")
     .eq("user_id", user_id);
   return data;
 }
 
 export async function addMember({
-  name,
+  description,
   user_id,
-}: Pick<Member, "name"> & { user_id: User["id"] }) {
+}: Pick<Member, "description"> & { user_id: User["id"] }) {
   const { data, error } = await supabase
     .from("members")
-    .insert([{ name, user_id: user_id }])
+    .insert([{ description, user_id }])
     .single();
 
   if (!error) {
@@ -36,7 +39,7 @@ export async function deleteMember({
   user_id,
 }: Pick<Member, "id"> & { user_id: User["id"] }) {
   const { error } = await supabase
-    .from("notes")
+    .from("members")
     .delete({ returning: "minimal" })
     .match({ id, user_id: user_id });
 
@@ -62,7 +65,7 @@ export async function getMember({
     return {
       user_id: data.user_id,
       id: data.id,
-      name: data.name,
+      description: data.description,
     };
   }
 

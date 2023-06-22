@@ -3,17 +3,21 @@ import type { User} from "./user.server";
 import { supabase } from "./user.server";
 
 
-export interface Transaction {
+export interface NameAmountItem {
 	id?: string
+	description: string
+	amount?: number
+}
+
+export interface Transaction extends NameAmountItem {
+	amount: number
 	completed?: boolean
 	loading?: boolean
 	account_id: string
 	user_id?: string
 	member_id: string | null
 	date: string
-	description: string
 	curve: boolean
-	amount: number
 }
 
 export async function getTransactionListItems({ user_id }: { user_id: User["id"] }) {
@@ -37,10 +41,10 @@ export async function createTransactions(transactions: Transaction[], user_id: U
 			account_id: item.account_id,
 		})));
 	if (error) {
-		console.log("Error: ", error);
+		console.error("Error: ", error);
 		return null;
 	}
-	console.log("Transaction created");
+	console.info("Transaction created");
 	return response;
 }
 
@@ -51,9 +55,9 @@ export async function setTransactionMember(transactionId: string, member_id: str
 		.match({ id: transactionId }); // condition for row(s) to update
 
 	if (error) {
-		console.log("Error: ", error);
+		console.error("Error: ", error);
 		return null;
 	}
-	console.log("Transaction member set");
+	console.info("Transaction member set");
 	return response;
 }

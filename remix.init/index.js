@@ -69,7 +69,7 @@ async function main({ rootDirectory }) {
     fs.writeFile(PACKAGE_JSON_PATH, newPackageJson),
   ]);
 
-  console.log(
+  console.info(
     `
 Setup is almost complete! Follow these steps to finish initialization:
 - Create a new Supabase project and perform the SQL queries described in the README.

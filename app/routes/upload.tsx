@@ -3,18 +3,19 @@ import { parse } from "papaparse";
 import { json } from "@remix-run/node";
 import { useLoaderData, useNavigate } from "@remix-run/react";
 import { convertDates } from "~/utils";
-import { Header } from "./transactions";
 import ColumnSelector from "~/components/ColumnSelector";
 import ColumnPreview from "~/components/ColumnPreview";
 import { requireUserId } from "~/session.server";
 import { getAccountListItems } from "~/models/account.server";
+import { ToastType } from "~/components/Toast";
+import Toast from "~/components/Toast";
+import Header from "~/components/Header";
 
 import type { ChangeEvent} from "react";
 import type { LoaderArgs } from "@remix-run/node";
 import type { Transaction} from "~/models/transaction.server";
 import type { Account} from "~/models/account.server";
-import { ToastProps, ToastType } from "~/components/Toast";
-import Toast from "~/components/Toast";
+import type { ToastProps} from "~/components/Toast";
 
 export interface CSVData {
   [key: string]: string
@@ -173,7 +174,7 @@ export default function TransactionUpload() {
 						<select value={accountId} onChange={handleAccountChange} className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
 							{accountListItems.length > 1 ? <option value=""> Velg en konto </option> : null }
 							{accountListItems.map((acc, idx) => 
-								<option key={idx} value={acc.id} className="w-full"> {acc.name} </option>
+								<option key={idx} value={acc.id} className="w-full"> {acc.description} </option>
 							)}
 						</select>
 					</div>
