@@ -1,5 +1,6 @@
 import { Link } from "@remix-run/react";
 import { useOptionalUser } from "~/utils";
+import hallgeir1000 from '../../public/hallgeir1000.jpg';
 
 export default function Index() {
   const user = useOptionalUser();
@@ -12,7 +13,7 @@ export default function Index() {
             <div className="absolute inset-0 shadow-xl invisible sm:visible">
               <img
                 className="h-full w-full object-cover"
-                src="https://pengeverkstedet.no/pengeverkstedet/wp-content/uploads/2015/12/15temHallgeir_Kvad_5054617a-e1455744894715.jpg"
+                src={hallgeir1000}
                 alt="Hallgeir som blar opp tusenlapper"
               />
               <div className="absolute inset-0 bg-[color:rgba(139,92,246,0.5)] mix-blend-multiply" />
@@ -25,7 +26,7 @@ export default function Index() {
               </h1>
               <img
                 className="w-[90%] aspect-video object-cover m-[1rem] rounded-xl sm:hidden"
-                src="https://pengeverkstedet.no/pengeverkstedet/wp-content/uploads/2015/12/15temHallgeir_Kvad_5054617a-e1455744894715.jpg"
+                src={hallgeir1000}
                 alt="Hallgeir som blar opp tusenlapper"
               />
               <p className="mx-auto mt-6 max-w-lg text-center text-xl text-white sm:max-w-3xl">

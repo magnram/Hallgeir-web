@@ -79,7 +79,7 @@ export default function TransactionsPage() {
   return (
     <div className="flex min-h-screen flex-col mx-auto bg-gray-100">
       <Header />
-      <main className="flex flex-col m-2 p-2 max-w-4xl m-auto w-full">
+      <main className="flex flex-col m-2 p-2 max-w-3xl m-auto w-full">
         <div>
           <h6 className="font-bold text-sm">Velg en konto</h6>
           <RadioButtonList 
