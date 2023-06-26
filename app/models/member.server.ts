@@ -7,15 +7,49 @@ export interface Member extends NameAmountItem {
   id: string
   description: string
 	amount?: number
+	order?: number
+	active: boolean
 };
-
 
 export async function getMemberListItems({ user_id }: { user_id: User["id"] }) {
   const { data } = await supabase
     .from("members")
-    .select("id, description")
+    .select("id, description, active, order")
     .eq("user_id", user_id);
   return data;
+}
+
+export async function updateAndInsertMembers(members: Member[], user_id: User["id"]) {
+	const inactiveMembers = members.filter(member => !member.active).map(member => member.id);
+	
+	if (inactiveMembers.length > 0) {
+		for (const memberId of inactiveMembers) {
+			const { error: transactionsError } = await supabase
+				.from("transactions")
+				.update({ member_id: null })
+				.eq("member_id", memberId);
+
+			// Handle any errors during transactions update
+			if (transactionsError) {
+				console.error(transactionsError);
+				return { error: transactionsError };
+			}
+		}
+}
+
+	const { data, error } = await supabase
+		.from("members")
+		.upsert(members.map((item) => {
+			const newItem: any = { 
+				id: item.id,
+				description: item.description,
+				active: item.active,
+				order: item.order,
+				user_id: user_id
+			}
+			return newItem;
+		}));
+	if (!error) return { data, inactiveMembers };
 }
 
 export async function addMember({

@@ -7,6 +7,8 @@ export interface NameAmountItem {
 	id?: string
 	description: string
 	amount?: number
+	order?: number
+	active?: boolean
 }
 
 export interface Transaction extends NameAmountItem {
@@ -25,7 +27,7 @@ export async function getTransactionListItems({ user_id }: { user_id: User["id"]
     .from("transactions")
     .select("id, description, date, amount, curve, member_id, account_id, created_at")
 		.order('date', { ascending: false })
-    .eq("user_id", user_id);
+    .eq("user_id", user_id)
   return data;
 }
 

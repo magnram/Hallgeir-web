@@ -13,7 +13,7 @@ interface TransactionCardProps extends Transaction {
 	onMemberChange: (id: string, memberId: string | null) => void;
 }
 
-const TransactionCard: React.FC<TransactionCardProps> = ({ id, description, amount, date, completed, member_id, account_id, curve, loading, members, onMemberChange, handled }) => {
+const TransactionCard: React.FC<TransactionCardProps> = ({ id, description, amount, date, completed, member_id, account_id, curve, loading, members, onMemberChange }) => {
 	if(!id) return null;
 
   const handleMemberChange = (event: ChangeEvent<HTMLInputElement> | null) => {
@@ -63,7 +63,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ id, description, amou
 				<h3 className="text-2xl"> { formatDescription(description) } </h3>
 			</div>
       <div className="flex justify-between border-t-[1px] gap-[1px] bg-gray-200">
-        {members.map((member) => (
+        {members && members.filter(member => member.active).map((member) => (
           <label key={member.id} htmlFor={`${id}-${member.id}`} className={`cursor-pointer w-full p-2 text-center ${member_id === member.id ? ' bg-violet-50 border-violet-500 border-[1px]' : 'bg-white border-gray-100'}`}>
             <input
               type="radio"

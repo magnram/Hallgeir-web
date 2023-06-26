@@ -7,15 +7,34 @@ export interface Account extends NameAmountItem {
   id: string
   description: string
 	amount?: number
+	order?: number
+	active: boolean
 };
 
 
 export async function getAccountListItems({ user_id }: { user_id: User["id"] }) {
   const { data } = await supabase
     .from("accounts")
-    .select("id, description")
+    .select("id, description, active, order")
     .eq("user_id", user_id);
   return data;
+}
+
+export async function updateAndInsertAccounts(accounts: Account[], user_id: User["id"]) {
+	const { data, error } = await supabase
+		.from("accounts")
+		.upsert(accounts.map((item) => {
+			const newItem: any = { 
+				id: item.id,
+				description: item.description,
+				active: item.active,
+				order: item.order,
+				user_id: user_id
+			}
+			return newItem;
+		}));
+	if (!error) return data;
+	return null;
 }
 
 export async function addAccount({
