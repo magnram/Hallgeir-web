@@ -66,7 +66,6 @@ export default function TransactionsPage() {
 		.then(response => response.json())
 		.then((data) => {
 			setModal(undefined);
-			console.log(data)
 			if(data.inactiveMembers) setTransactions(transactions.map(transaction => {
 				if (data.inactiveMembers.includes(transaction.member_id)) {
 					transaction.member_id = null;
