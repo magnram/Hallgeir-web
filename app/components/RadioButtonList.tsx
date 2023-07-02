@@ -73,7 +73,7 @@ const RadioButtonList = ({ listItems, transactionItems, onChange, onManageClick,
 					onClick={() => {
 						if (onManageClick) onManageClick(name)
 					}}
-					isChecked={selectedAccount === (listItems.length+1).toString()}
+					isChecked={selectedAccount === (listItems.length+2).toString()}
 					amount={sum(transactionItems.filter((a) => !a.id))}
 					isManageButton={true}
 				/>

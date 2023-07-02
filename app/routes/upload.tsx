@@ -97,7 +97,7 @@ export default function TransactionUpload() {
 		
 				const dateColumns = dateColumnsWithDates.map(a => a[0])
 				const amountColumns = colNameWithRows
-					.filter((a) => (a[1].length == (a[1] as unknown as string[]).filter(b => b.match("[0-9]+(.|,)[0-9]+") && parseInt(b) > -60000 && parseInt(b) < 60000).length))
+					.filter((a) => (a[1].length == (a[1] as unknown as string[]).filter(b => b && b.match("[0-9]+(.|,)[0-9]+") && parseInt(b) > -60000 && parseInt(b) < 60000).length))
 					.map(a => a[0])
 					.filter(a => !dateColumns.includes(a));
 

@@ -113,6 +113,10 @@ export default function TransactionsPage() {
                         || (!transaction.member_id && selectedMember == (members.length + 1).toString())
     );
 
+		const transactionsToPay = filteredTransactions && filteredTransactions
+		.filter(transaction => transaction.member_id !== null)
+		.filter(transaction => transaction.member_id == selectedMember || selectedMember == "0");
+
   return (
     <div className="flex min-h-screen flex-col mx-auto bg-gray-100">
       <Header />
@@ -142,9 +146,6 @@ export default function TransactionsPage() {
 						onManageClick={handleManageClick}
 					/>
         </div>
-				<button className="bg-violet-500 hover:bg-violet-700 text-white font-bold my-2 py-2 px-4 rounded max-w-[25rem] mx-auto">
-					Betal valgte transaksjoner&nbsp;&nbsp;({sum(filteredTransactions)}&nbsp;kr)
-				</button>
 				{filteredTransactions.filter(a => !a.member_id).length != 0 &&
 				<div className="pt-2">
 					<h6 className="font-bold text-sm"> Transaksjoner som må tildeles </h6>
@@ -155,8 +156,13 @@ export default function TransactionsPage() {
 					/>
 				</div>}
 				{ filteredTransactions.filter(a => a.member_id).length != 0 &&
-				<div className="pt-2">
+				<div className="pt-2 flex flex-col justify-center">
 					<h6 className="font-bold text-sm"> Tildelte transaksjoner </h6>
+					<button 
+						disabled={!transactionsToPay.length}
+						className="disabled:hidden bg-violet-500 hover:bg-violet-700 text-white font-bold my-2 py-2 px-4 rounded max-w-[25rem] mx-auto">
+						Betal tildelte transaksjoner&nbsp;&nbsp;({sum(transactionsToPay)}&nbsp;kr)
+					</button>
 					<TransactionsList 
 						transactions={filteredTransactions.filter(a => a.member_id)} 
 						onMemberChange={handleTransactionMemberChange}

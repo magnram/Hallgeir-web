@@ -15,7 +15,7 @@ const RadioButton = ({ id, name, onChange, onClick, isChecked, title, amount, is
 	const disabled = !amount && !isManageButton;
 	return (
 		<label
-			className={`${disabled ? '' : 'cursor-pointer'} ${isManageButton ? "bg-gray-200 text-sm" : "bg-white"} h-[62px] justify-center flex text-center flex-col rounded-md items-center p-1 m-1 border-[1px] space-y-1 max-w-[6rem] ${isChecked && 'border-violet-500'}`}
+			className={`${disabled ? '' : 'cursor-pointer'} ${isManageButton ? "bg-gray-200 text-sm" : "bg-white"} ${isChecked && 'border-violet-500'} h-[62px] justify-center flex text-center flex-col rounded-md items-center p-1 m-1 border-[1px] space-y-1 max-w-[6rem]`}
 			htmlFor={name + id.toString()}
 		>
 			<input
