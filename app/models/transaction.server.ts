@@ -15,23 +15,24 @@ export interface Transaction extends NameAmountItem {
 	amount: number
 	completed?: boolean
 	loading?: boolean
-	account_id: string
+	payment_id: string
 	user_id?: string
 	member_id: string | null
 	date: string
 	curve: boolean
 }
 
-export async function getTransactionListItems({ user_id }: { user_id: User["id"] }) {
+export async function getTransactionListItems({ user_id, payment_id }: { user_id: User["id"], payment_id: string }) {
   const { data } = await supabase
     .from("transactions")
-    .select("id, description, date, amount, curve, member_id, account_id, created_at")
+    .select("id, description, date, amount, curve, member_id, payment_id, created_at")
 		.order('date', { ascending: false })
+		.eq("payment_id", payment_id)
     .eq("user_id", user_id)
   return data;
 }
 
-export async function createTransactions(transactions: Transaction[], user_id: User["id"]) {
+export async function createTransactions(transactions: Transaction[], user_id: User["id"], payment_id: string) {
 	let { data: response, error } = await supabase
 		.from('transactions')
 		.insert(transactions.map((item) => ({
@@ -40,7 +41,7 @@ export async function createTransactions(transactions: Transaction[], user_id: U
 			amount: item.amount,
 			curve: item.curve,
 			user_id: user_id,
-			account_id: item.account_id,
+			payment_id: payment_id,
 		})));
 	if (error) {
 		console.error("Error: ", error);

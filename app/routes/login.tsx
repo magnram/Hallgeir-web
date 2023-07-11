@@ -67,13 +67,13 @@ export const action: ActionFunction = async ({ request }) => {
     request,
     user_id: user.id,
     remember: remember === "on" ? true : false,
-    redirectTo: typeof redirectTo === "string" ? redirectTo : "/transactions",
+    redirectTo: typeof redirectTo === "string" ? redirectTo : "/payments",
   });
 };
 
 export default function Login() {
   const [searchParams] = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/transactions";
+  const redirectTo = searchParams.get("redirectTo") ?? "/payments";
 
   const actionData = useActionData() as ActionData;
   const emailRef = React.useRef<HTMLInputElement>(null);

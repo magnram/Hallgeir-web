@@ -1,64 +1,57 @@
-import type { LoaderArgs} from "@remix-run/node";
-import type { NameAmountItem, Transaction} from "~/models/transaction.server";
-
 import { useState } from "react";
-import { useLoaderData } from "@remix-run/react";
+import invariant from "tiny-invariant";
+import type { LoaderArgs} from "@remix-run/node";
 import { json } from "@remix-run/node";
-import { requireUserId } from "~/session.server";
-import TransactionsList from "~/components/TransactionsList";
-import { getTransactionListItems } from "~/models/transaction.server";
-import type { Account} from "~/models/account.server";
-import { getAccountListItems } from "~/models/account.server";
-import type { Member } from "~/models/member.server";
-import { getMemberListItems } from "~/models/member.server";
+import { useLoaderData } from "@remix-run/react";
+
 import Header from "~/components/Header";
-import RadioButtonList, { sum } from "~/components/RadioButtonList";
+import TransactionsList from "~/components/TransactionsList";
+import RadioButtonList from "~/components/RadioButtonList";
 import { ManageModal } from "~/components/ManagementModal";
+import { requireUserId } from "~/session.server";
+import { getPayment } from "~/models/payment.server";
+import { getMemberListItems } from "~/models/member.server";
+
+import type { Payment } from "~/models/payment.server";
+import type { Member } from "~/models/member.server";
+import type { NameAmountItem, Transaction} from "~/models/transaction.server";
 import type { ManagementModalProps } from "~/components/ManagementModal";
 
-
 interface LoaderData {
-  transactionListItems: Transaction[];
-	accountListItems: Account[];
+  payment: Payment;
 	memberListItems: Member[];
 };
 
-export async function loader ({ request }: LoaderArgs) {
+export async function loader ({ request, params }: LoaderArgs) {
   const user_id = await requireUserId(request);
-  const transactionListItems = await getTransactionListItems({ user_id });
-	const accountListItems = await getAccountListItems({ user_id });
+	invariant(params.paymentId, "paymentId not found");
+	
+  const payment = await getPayment({ user_id, payment_id: params.paymentId });
 	const memberListItems = await getMemberListItems({ user_id });
 
-	return json({ transactionListItems, accountListItems, memberListItems });
+	return json({ payment, memberListItems });
 };
 
-export default function TransactionsPage() {
-  const { transactionListItems, accountListItems, memberListItems } = useLoaderData<typeof loader>() as LoaderData;
-	const [accounts, setAccounts] = useState<Account[]>(accountListItems);
+export default function PaymentDetailsPage() {
+  const { payment, memberListItems } = useLoaderData<typeof loader>() as LoaderData;
 	const [members, setMembers] = useState<Member[]>(memberListItems);
-	const [transactions, setTransactions] = useState<Transaction[]>(transactionListItems);
-  const [selectedAccount, setSelectedAccount] = useState<string | null>("0");
+	const [transactions, setTransactions] = useState<Transaction[]>(payment && payment.transactions!);
   const [selectedMember, setSelectedMember] = useState<string | null>("0");
 	const [modal, setModal] = useState<ManagementModalProps>();
-
-  const handleAccountChange = (id: string) => setSelectedAccount(id);
 
   const handleMemberChange = (id: string) => setSelectedMember(id);
 
 	const handleManageClick = (name: string) => {
-		const listItems = name == 'kontoer' ? accounts : members;
-
 		setModal({
 			title: name,
-			listItems: listItems,
+			listItems: members,
 			onClose: () => setModal(undefined),
-			onSave: (listItems: NameAmountItem[]) => handleManageSave(name, listItems)
+			onSave: (listItems: NameAmountItem[]) => handleManageSave(listItems)
 		});
 	};
 
-	const handleManageSave = (name: string, listItems: NameAmountItem[]) => {
-		const urlPrefix = name == 'kontoer' ? 'accounts' : 'members';
-		fetch(urlPrefix + '/update', {
+	const handleManageSave = (listItems: NameAmountItem[]) => {
+		fetch('/members/update', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ listItems }),
@@ -73,8 +66,7 @@ export default function TransactionsPage() {
 				return transaction;
 			}))
 
-			if(name == 'kontoer') setAccounts(listItems as Account[]);
-			else setMembers(listItems as Member[]);
+			setMembers(listItems as Member[]);
 		})
 		.catch((error) => { console.error(error); });
 	};
@@ -86,7 +78,7 @@ export default function TransactionsPage() {
 			}
 			return transaction;
 		}));
-		fetch('/transactions/setMember', {
+		fetch('/payments/setMember', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ id, member_id }),
@@ -103,42 +95,51 @@ export default function TransactionsPage() {
 		})
 		.catch((error) => { console.error('Error:', error) });
 	};
-  
-  const filteredTransactionsAccount = transactions && transactions
-    .filter(transaction => selectedAccount == '0' || selectedAccount == transaction.account_id);
     
-  const filteredTransactions = filteredTransactionsAccount && filteredTransactionsAccount
+  const filteredTransactions = transactions && transactions
     .filter(transaction => selectedMember == '0' 
                         || (transaction.member_id && selectedMember == transaction.member_id.toString())
                         || (!transaction.member_id && selectedMember == (members.length + 1).toString())
     );
+		// const transactionsToPay = filteredTransactions && filteredTransactions
+		// .filter(transaction => transaction.member_id !== null)
+		// .filter(transaction => transaction.member_id == selectedMember || selectedMember == "0");
 
-		const transactionsToPay = filteredTransactions && filteredTransactions
-		.filter(transaction => transaction.member_id !== null)
-		.filter(transaction => transaction.member_id == selectedMember || selectedMember == "0");
+		const dateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
 
   return (
     <div className="flex min-h-screen flex-col mx-auto bg-gray-100">
-      <Header />
+      <Header showBackButton showLogoutButton={false} headerText={`Betaling lastet opp ${new Date(payment.created_at).toLocaleDateString("no-NO", dateOptions)}`}/>
 			{modal && <ManageModal {...modal} />}
       <main className="flex flex-col m-2 p-2 max-w-3xl mx-auto w-full">
+				<div className="pb-4 flex flex-col gap-3 items-center">
+					<div className="flex gap-5 items-center">
+						<h1 className="text-2xl font-bold">{payment.name} ({payment.account.description})</h1>
+					</div>
+					<div className="flex gap-4 items-center">
+						<button 
+							disabled={payment.completed}
+							className="disabled:bg-transparent disabled:text-green-700 bg-green-600 hover:bg-green-500 text-white py-2 px-4 rounded max-w-[25rem]">
+							{payment.completed ? "Betaling er fullført" : "Marker betaling som fullført"}
+						</button>
+						{payment.completed &&
+							<button 
+								className="disabled:hidden text-sm underline py-2 rounded text-gray-500">
+									Gjenåpne betaling
+							</button>
+						}
+						<button 
+							onClick={() => {}}
+							className="disabled:hidden text-sm underline py-2 rounded text-gray-600">
+								Rediger
+						</button>
+					</div>
+				</div>
         <div>
-          <h6 className="font-bold text-sm">Velg en konto</h6>
-					<RadioButtonList 
-						listItems={accounts}
-						transactionItems={transactions.map(a => ({ id: a.account_id, description: a.description, amount: a.amount }))}
-						onChange={handleAccountChange}
-						name="kontoer"
-						includeUnassigned={false}
-						includeManageButton={true}
-						onManageClick={handleManageClick}
-					/>
-        </div>
-        <div className="pt-2">
           <h6 className="font-bold text-sm">Velg en person</h6>
 					<RadioButtonList 
 						listItems={members}
-						transactionItems={filteredTransactionsAccount.map(a => ({ id: a.member_id || undefined, description: a.description, amount: a.amount }))}
+						transactionItems={transactions.map(a => ({ id: a.member_id || undefined, description: a.description, amount: a.amount }))}
 						onChange={handleMemberChange}
 						name="personer"
 						includeUnassigned={true}
@@ -158,11 +159,6 @@ export default function TransactionsPage() {
 				{ filteredTransactions.filter(a => a.member_id).length != 0 &&
 				<div className="pt-2 flex flex-col justify-center">
 					<h6 className="font-bold text-sm"> Tildelte transaksjoner </h6>
-					<button 
-						disabled={!transactionsToPay.length}
-						className="disabled:hidden bg-violet-500 hover:bg-violet-700 text-white font-bold my-2 py-2 px-4 rounded max-w-[25rem] mx-auto">
-						Betal tildelte transaksjoner&nbsp;&nbsp;({sum(transactionsToPay)}&nbsp;kr)
-					</button>
 					<TransactionsList 
 						transactions={filteredTransactions.filter(a => a.member_id)} 
 						onMemberChange={handleTransactionMemberChange}
