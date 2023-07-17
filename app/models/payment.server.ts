@@ -16,7 +16,7 @@ export interface Payment {
 export async function getPaymentListItems({ user_id }: { user_id: User["id"] }) {
   const { data, error } = await supabase
     .from("payments")
-    .select("id, name, completed, created_at, transactions(amount), account:accounts(id, description)")
+    .select("id, name, completed, created_at, transactions(amount, excluded), account:accounts(id, description)")
 		.order('created_at', { ascending: false })
     .eq("user_id", user_id)
 
@@ -24,7 +24,6 @@ export async function getPaymentListItems({ user_id }: { user_id: User["id"] }) 
 		console.error("Error: ", error);
 		return [];	
 	}
-	console.log(data)
   return data;
 }
 
@@ -39,7 +38,6 @@ export async function getPaymentNames({ user_id }: { user_id: User["id"] }) {
 		console.error("Error: ", error);
 		return [];	
 	}
-	console.log(data)
   return data;
 }
 
@@ -49,6 +47,7 @@ export async function getPayment({ user_id, payment_id }: { user_id: User["id"],
 		.select("id, name, completed, created_at, transactions(*), account:accounts(description)")
 		.eq("id", payment_id)
 		.eq("user_id", user_id)
+		.order("date", { foreignTable: 'transactions', ascending: false })
 		.single();
 	
 	if (error) {
@@ -71,8 +70,6 @@ export async function createPayment(payment: Payment, user_id: User["id"], trans
 		console.error("Error: ", error);
 		return null;
 	}
-	console.log("yyy")
-	console.log(await response)
 
 	if(transactions) {
 		createTransactions(transactions, user_id, response![0].id);	
@@ -92,5 +89,18 @@ export async function setTransactionMember(transactionId: string, member_id: str
 		return null;
 	}
 	console.info("Transaction member set");
+	return response;
+}
+
+export async function setPaymentCompleted(paymentId: string, completed: boolean) {
+	let { data: response, error } = await supabase
+		.from('payments')  // table name
+		.update({ completed: completed }) // new value to update
+		.match({ id: paymentId }); // condition for row(s) to update
+
+	if (error) {
+		console.error("Error: ", error);
+		return null;
+	}
 	return response;
 }

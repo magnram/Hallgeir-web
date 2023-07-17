@@ -27,6 +27,7 @@ const RadioButtonList = ({ listItems, transactionItems, onChange, onManageClick,
 	}
 
 	if(listItems && !listItems.filter((item) => item.active).length) return <p> Ingen {name} funnet. <button className="underline text-violet-500" onClick={() => onManageClick(name)}> Vennligst legg til {name} </button> </p>;
+	if(!listItems) return null;
 
 	return (
 		<div className="flex overflow-x-scroll items-center">

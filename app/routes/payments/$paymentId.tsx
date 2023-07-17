@@ -35,10 +35,14 @@ export async function loader ({ request, params }: LoaderArgs) {
 export default function PaymentDetailsPage() {
   const { payment, memberListItems } = useLoaderData<typeof loader>() as LoaderData;
 	const [members, setMembers] = useState<Member[]>(memberListItems);
+	const [paymentCompleted, setPaymentCompleted] = useState(payment && payment.completed);
 	const [transactions, setTransactions] = useState<Transaction[]>(payment && payment.transactions!);
   const [selectedMember, setSelectedMember] = useState<string | null>("0");
 	const [modal, setModal] = useState<ManagementModalProps>();
 
+	const includedTransactions = transactions && transactions.filter(transaction => transaction.excluded === false)
+	const excludedTransactions = transactions && transactions.filter(transaction => transaction.excluded === true)
+	
   const handleMemberChange = (id: string) => setSelectedMember(id);
 
 	const handleManageClick = (name: string) => {
@@ -83,7 +87,6 @@ export default function PaymentDetailsPage() {
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ id, member_id }),
 		})
-		.then(response => response.json())
 		.then(_ => {
 			setTransactions(transactions.map(transaction => {
 				if (transaction.id == id) {
@@ -95,15 +98,41 @@ export default function PaymentDetailsPage() {
 		})
 		.catch((error) => { console.error('Error:', error) });
 	};
+
+	const handleTransactionExcluded = (id: string, excluded: boolean) => {
+		setTransactions(transactions.map(transaction => {
+			if (transaction.id == id) {
+				transaction.loading = true;
+			}
+			return transaction;
+		}));
+		fetch('/transactions/exclude', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ id, excluded: excluded }),
+		})
+		.then(_ => setTransactions(transactions.map(transaction => {
+			if (transaction.id == id) {
+				transaction.excluded = excluded;
+				transaction.loading = undefined;
+			}
+			return transaction;
+		})))
+	}
+
+	const handlePaymentCompleted = (completed: boolean) => {
+		fetch('/payments/complete', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ id: payment.id, completed: completed }),
+		})
+		.then(_ => setPaymentCompleted(completed))
+	}
     
-  const filteredTransactions = transactions && transactions
-    .filter(transaction => selectedMember == '0' 
+  const filteredTransactions = includedTransactions.filter(transaction => selectedMember == '0' 
                         || (transaction.member_id && selectedMember == transaction.member_id.toString())
                         || (!transaction.member_id && selectedMember == (members.length + 1).toString())
     );
-		// const transactionsToPay = filteredTransactions && filteredTransactions
-		// .filter(transaction => transaction.member_id !== null)
-		// .filter(transaction => transaction.member_id == selectedMember || selectedMember == "0");
 
 		const dateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
 
@@ -118,12 +147,14 @@ export default function PaymentDetailsPage() {
 					</div>
 					<div className="flex gap-4 items-center">
 						<button 
-							disabled={payment.completed}
+							onClick={() => handlePaymentCompleted(true)}
+							disabled={paymentCompleted}
 							className="disabled:bg-transparent disabled:text-green-700 bg-green-600 hover:bg-green-500 text-white py-2 px-4 rounded max-w-[25rem]">
-							{payment.completed ? "Betaling er fullført" : "Marker betaling som fullført"}
+							{paymentCompleted ? "Betaling er fullført" : "Marker betaling som fullført"}
 						</button>
-						{payment.completed &&
+						{paymentCompleted &&
 							<button 
+								onClick={() => handlePaymentCompleted(false)}
 								className="disabled:hidden text-sm underline py-2 rounded text-gray-500">
 									Gjenåpne betaling
 							</button>
@@ -139,7 +170,7 @@ export default function PaymentDetailsPage() {
           <h6 className="font-bold text-sm">Velg en person</h6>
 					<RadioButtonList 
 						listItems={members}
-						transactionItems={transactions.map(a => ({ id: a.member_id || undefined, description: a.description, amount: a.amount }))}
+						transactionItems={includedTransactions.map(a => ({ id: a.member_id || undefined, description: a.description, amount: a.amount }))}
 						onChange={handleMemberChange}
 						name="personer"
 						includeUnassigned={true}
@@ -153,6 +184,7 @@ export default function PaymentDetailsPage() {
 					<TransactionsList 
 						transactions={filteredTransactions.filter(a => !a.member_id)} 
 						onMemberChange={handleTransactionMemberChange}
+						onExcludedChange={handleTransactionExcluded}
 						members={members}
 					/>
 				</div>}
@@ -162,7 +194,18 @@ export default function PaymentDetailsPage() {
 					<TransactionsList 
 						transactions={filteredTransactions.filter(a => a.member_id)} 
 						onMemberChange={handleTransactionMemberChange}
+						onExcludedChange={handleTransactionExcluded}
 						members={members}
+					/>
+				</div>}
+				{ excludedTransactions.length != 0 &&
+				<div className="pt-2 flex flex-col justify-center">
+					<h6 className="font-bold text-sm"> Ekskluderte transaksjoner </h6>
+					<TransactionsList 
+						transactions={excludedTransactions} 
+						onMemberChange={() => {}}
+						onExcludedChange={handleTransactionExcluded}
+						members={[]}
 					/>
 				</div>}
       </main>

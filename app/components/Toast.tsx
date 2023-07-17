@@ -86,7 +86,7 @@ const ProgressBar = ({ duration, color }: ProgressBarProps) => {
 
 	return (
 		<div className="absolute bottom-0 left-0 w-full h-1 bg-gray-200 rounded-b-lg">
-			<div className={`h-full bg-${color}-500 rounded-b-lg`} style={{ width: `${progressBarWidth}%` }}></div>
+			<div className={`h-full bg-violet-500 rounded-b-lg`} style={{ width: `${progressBarWidth}%` }}></div>
 		</div>
 	)
 }

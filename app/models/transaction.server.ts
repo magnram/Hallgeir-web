@@ -13,24 +13,25 @@ export interface NameAmountItem {
 
 export interface Transaction extends NameAmountItem {
 	amount: number
-	completed?: boolean
+	excluded: boolean
 	loading?: boolean
 	payment_id: string
 	user_id?: string
 	member_id: string | null
 	date: string
-	curve: boolean
+	tags: string[]
+	cardUser: string
 }
 
-export async function getTransactionListItems({ user_id, payment_id }: { user_id: User["id"], payment_id: string }) {
-  const { data } = await supabase
-    .from("transactions")
-    .select("id, description, date, amount, curve, member_id, payment_id, created_at")
-		.order('date', { ascending: false })
-		.eq("payment_id", payment_id)
-    .eq("user_id", user_id)
-  return data;
-}
+// export async function getTransactionListItems({ user_id, payment_id }: { user_id: User["id"], payment_id: string }) {
+//   const { data } = await supabase
+//     .from("transactions")
+//     .select("id, description, date, amount, tags, member_id, payment_id, created_at")
+// 		.order('date', { ascending: false })
+// 		.eq("payment_id", payment_id)
+//     .eq("user_id", user_id)
+//   return data;
+// }
 
 export async function createTransactions(transactions: Transaction[], user_id: User["id"], payment_id: string) {
 	let { data: response, error } = await supabase
@@ -39,8 +40,10 @@ export async function createTransactions(transactions: Transaction[], user_id: U
 			date: moment(item.date, "D.M.YYYY").format('YYYY-MM-DD'),
 			description: item.description,
 			amount: item.amount,
-			curve: item.curve,
+			tags: item.tags,
+			excluded: item.excluded,
 			user_id: user_id,
+			cardUser: item.cardUser,
 			payment_id: payment_id,
 		})));
 	if (error) {
@@ -62,5 +65,18 @@ export async function setTransactionMember(transactionId: string, member_id: str
 		return null;
 	}
 	console.info("Transaction member set");
+	return response;
+}
+
+export async function setTransactionExcluded(transactionId: string, excluded: boolean) {
+	let { data: response, error } = await supabase
+		.from('transactions')  // table name
+		.update({ excluded: excluded }) // new value to update
+		.match({ id: transactionId }); // condition for row(s) to update
+
+	if (error) {
+		console.error("Error: ", error);
+		return null;
+	}
 	return response;
 }

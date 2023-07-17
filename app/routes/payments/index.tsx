@@ -48,7 +48,7 @@ export default function PaymentsPage() {
 	};
 
 	const handleManageSave = (listItems: NameAmountItem[]) => {
-		fetch('accounts/update', {
+		fetch('/accounts/update', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ listItems }),

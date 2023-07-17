@@ -11,19 +11,21 @@ const PaymentCard = ({ payment }: PaymentCardProps) => {
 
 	const dateOptions: Intl.DateTimeFormatOptions = { year: 'numeric', month: 'long', day: 'numeric' };
 
+	const includedTransactions = payment.transactions && payment.transactions.filter(transaction => !transaction.excluded);
+
 	return (
 		<div className="flex bg-white shadow cursor-pointer hover:bg-gray-50 rounded-sm overflow-hidden" onClick={() => navigate("/payments/" + payment.id)}>
 			<div className={`w-1 ${payment.completed ? "bg-green-700" : "bg-violet-700"}`}></div>
 			<div className="flex flex-col flex-1 gap-3 p-3">
 				<div className="flex justify-between">
 					<p className="text-gray-500 "> { payment.account.description } </p>
-					<p className="font-bold text-lg"> {payment.transactions ? sum(payment.transactions) : "?"} kr </p>
+					<p className="font-bold text-lg"> {includedTransactions ? sum(includedTransactions) : "?"} kr </p>
 				</div>
 				<div className="flex">
 					<p className="text-4xl"> {payment.name} </p>
 				</div>
 				<div className="flex justify-between">
-					<p className="text-gray-500 italic"> {payment.transactions && payment.transactions.length} kjøp </p>
+					<p className="text-gray-500 italic"> {includedTransactions && includedTransactions.length} kjøp </p>
 					<p className="text-gray-500"> Lastet opp {new Date(payment.created_at).toLocaleDateString("no-NO", dateOptions)} </p>
 				</div>
 			</div>
