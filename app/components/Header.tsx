@@ -1,4 +1,4 @@
-import { Form, NavLink, useLocation, useNavigate } from "@remix-run/react";
+import { Form, useNavigate } from "@remix-run/react";
 import { useUser } from "~/utils";
 
 interface HeaderProps {
@@ -11,6 +11,7 @@ export default function Header ({ showBackButton, showLogoutButton, headerText }
   const user = useUser();
 	const navigate = useNavigate()
 	const goBack = () => navigate(-1);
+	const goToTrumf = () => navigate("/trumf");
 
 	return (
     <header className="bg-violet-800 w-full">
@@ -26,6 +27,12 @@ export default function Header ({ showBackButton, showLogoutButton, headerText }
 				{!showBackButton && !headerText && <p className="flex-1"> {user.email} </p>}
 				{headerText && <p className="flex-1 text-center"> {headerText} </p>}
 				<div className={`flex gap-4 ${showLogoutButton == false && "invisible"}` }>
+					<button 
+						onClick={goToTrumf}
+						className="flex flex-col items-center rounded bg-violet-600 py-1 px-5 text text-white hover:bg-white-500 active:bg-blue-600"
+					>
+						Trumf
+					</button>
 					<Form action="/logout" method="post">
 						<button
 							type="submit"

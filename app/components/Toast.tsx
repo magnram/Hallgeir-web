@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import colors from 'tailwindcss/colors'
 
 export enum ToastType {
 	Success,
@@ -41,9 +42,12 @@ export default function Toast({ type, message, onClose, autoCloseDuration }: Toa
 	);
 
 	return (
-		<div id={`toast-${type}`} className="fixed z-20 w-11/12 pb-1 max-w-full top-4 m-auto inset-x-0 mx-auto max-w-xs text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
+		<div id={`toast-${type}`} className="fixed z-20 w-11/12 pb-1 top-4 m-auto inset-x-0 mx-auto max-w-md text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800" role="alert">
 				<div className="flex items-center w-full p-2">
-					<div className={`inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-${color}-500 bg-${color}-100 rounded-lg dark:bg-${color}-800 dark:text-${color}-200`}>
+					<div 
+						className={`inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-lg`}
+						style={{ backgroundColor: colors[color][100], color: colors[color][500] }}
+						>
 							{ icon }
 							<span className="sr-only">{type} icon</span>
 					</div>
@@ -53,7 +57,7 @@ export default function Toast({ type, message, onClose, autoCloseDuration }: Toa
 							{ closeIcon }
 					</button>
 				</div>
-				{autoCloseDuration && <ProgressBar duration={autoCloseDuration} color={color} /> }
+				{autoCloseDuration && <ProgressBar duration={autoCloseDuration} color={colors[color][500]} /> }
 		</div>
 	)
 };
@@ -69,9 +73,10 @@ const ProgressBar = ({ duration, color }: ProgressBarProps) => {
 	const [progressBarInterval, setProgressBarInterval] = useState<NodeJS.Timeout | null>(null);
 
 	useEffect(() => {
+		setProgress(0);
 		setProgressBarInterval(setInterval(() => {
-			setProgress(progress => progress + 1);
-		}, duration / 100));
+			setProgress(progress => progress + 100 / (duration / 10));
+		}, 10));
 	}, [duration]);
 
 	useEffect(() => {
@@ -86,7 +91,7 @@ const ProgressBar = ({ duration, color }: ProgressBarProps) => {
 
 	return (
 		<div className="absolute bottom-0 left-0 w-full h-1 bg-gray-200 rounded-b-lg">
-			<div className={`h-full bg-violet-500 rounded-b-lg`} style={{ width: `${progressBarWidth}%` }}></div>
+			<div className={`h-full rounded-b-lg`} style={{ width: `${progressBarWidth}%`, background: color }}></div>
 		</div>
 	)
 }

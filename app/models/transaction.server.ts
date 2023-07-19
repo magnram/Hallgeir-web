@@ -17,21 +17,21 @@ export interface Transaction extends NameAmountItem {
 	loading?: boolean
 	payment_id: string
 	user_id?: string
+	trumf_bonus?: number
 	member_id: string | null
 	date: string
 	tags: string[]
 	cardUser: string
 }
 
-// export async function getTransactionListItems({ user_id, payment_id }: { user_id: User["id"], payment_id: string }) {
-//   const { data } = await supabase
-//     .from("transactions")
-//     .select("id, description, date, amount, tags, member_id, payment_id, created_at")
-// 		.order('date', { ascending: false })
-// 		.eq("payment_id", payment_id)
-//     .eq("user_id", user_id)
-//   return data;
-// }
+export async function getTransactionListItems({ user_id }: { user_id: User["id"] }) {
+  const { data } = await supabase
+    .from("transactions")
+    .select("id, description, date, amount, trumf_bonus")
+		.order('date', { ascending: false })
+    .eq("user_id", user_id)
+  return data;
+}
 
 export async function createTransactions(transactions: Transaction[], user_id: User["id"], payment_id: string) {
 	let { data: response, error } = await supabase
