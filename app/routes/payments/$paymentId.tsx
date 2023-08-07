@@ -41,7 +41,7 @@ export default function PaymentDetailsPage() {
 	const [modal, setModal] = useState<ManagementModalProps>();
 
 	const includedTransactions = transactions && transactions.filter(transaction => transaction.excluded === false)
-	const excludedTransactions = transactions && transactions.filter(transaction => transaction.excluded === true)
+	const excludedTransactions = transactions && transactions.filter(transaction => transaction.excluded === true && (selectedMember == '0' || selectedMember ==(members.length+1).toString()) )
 	
   const handleMemberChange = (id: string) => setSelectedMember(id);
 
