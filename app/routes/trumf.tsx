@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import Header from "~/components/Header";
-import Toast from "~/components/Toast";
+import Toast, { ToastType } from "~/components/Toast";
 import CopyIcon from "~/icons/CopyIcon";
 import { json } from "@remix-run/node";
 import { uploadTrumf } from "~/models/trumf.server";
 import { requireUserId } from "~/session.server";
-import { Form } from "@remix-run/react";
+import { Form, useActionData } from "@remix-run/react";
 
 import type { ToastProps } from "~/components/Toast";
 import type { ActionArgs} from "@remix-run/node";
@@ -24,14 +24,40 @@ export async function action({ request }: ActionArgs) {
 export default function TrumfPage() {
 
 	const [token, setToken] = useState<string>("");
-	const [copied, setCopied] = useState<boolean>(false);
+	const [copied, setCopied] = useState(false);
 	const [toast, setToast] = useState<ToastProps>();
+	const [loading, setLoading] = useState(false);
+	const data = useActionData<typeof action>();
 	
 	useEffect(() => {
 		if(copied) {
 			setTimeout(() => setCopied(false), 3000);
 		}
 	}, [copied]);
+
+	useEffect(() => {
+		if(loading) setLoading(false);
+		if(!data) return;
+		if(data?.status == "success") {
+			setToast({ 
+				type: ToastType.Success, 
+				message: `${data.transactionCount} transaksjoner ble nå synkronisert med Trumf!`, 
+				autoCloseDuration: 3000, 
+				onClose: () => setToast(undefined)
+			});
+		} else {
+			setToast({
+				type: ToastType.Error,
+				message: "Noe gikk galt under synkroniseringen av transaksjonene dine. Prøv igjen senere.",
+				autoCloseDuration: 3000,
+				onClose: () => setToast(undefined)
+			});
+		}
+	}, [data]);
+
+	const handleSubmit = () => {
+		setLoading(true);
+	}
 
   return (
 		<div className="flex flex-col mx-auto bg-gray-100">
@@ -76,7 +102,7 @@ export default function TrumfPage() {
 					</button>
 					{copied && <p className="text-gray-500"> Kopiert til utklippstavle! </p>}
 				</div>
-				<Form method="post">
+				<Form method="post" onSubmit={handleSubmit}>
 				<div className="pt-2">
 					<label className="text-xs" htmlFor="name"> Lim inn koden du får fra konsollen fra trumf.no </label>
 					<textarea required id="name" name="token" placeholder="eyXXXXXXX..." value={token} onChange={(e) => setToken(e.target.value)} 
@@ -85,20 +111,10 @@ export default function TrumfPage() {
 				</div>
 				<div className="flex justify-center">
 					<button 
-						disabled={token.length == 0}
+						disabled={loading || token.length == 0}
 						type="submit"
-						// onClick={() => {
-						// 	console.log(token);
-						// 	setToken("");
-						// 	setToast({ 
-						// 		type: ToastType.Success, 
-						// 		message: "Transaksjonene dine er nå synkronisert med Trumf!", 
-						// 		autoCloseDuration: 3000, 
-						// 		onClose: () => setToast(undefined)
-						// 	});
-						// }}
 						className="disabled:bg-gray-500 bg-violet-500 hover:bg-violet-700 text-white font-bold py-2 px-4 rounded mt-2 text-center w-60 m-auto"
-					> Send inn </button>
+					> { !loading ? "Send inn" : "Laster..." } </button>
 					</div>
 				</Form>
 			</main>	

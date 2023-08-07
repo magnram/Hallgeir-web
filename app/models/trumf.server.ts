@@ -47,7 +47,7 @@ export async function uploadTrumf({ user_id, token }: { user_id: string, token: 
 	
 	const matchingTransactions = databaseTransactions && trumfTransactions && trumfTransactions.filter((trumfTransaction: any) => {
 		const databaseTransaction = databaseTransactions.find((databaseTransaction) => {
-			return !databaseTransaction.trumf_bonus && databaseTransaction.amount === trumfTransaction.belop && sameDay(new Date(databaseTransaction.date), new Date(trumfTransaction.transaksjonsTidspunkt));
+			return !databaseTransaction.trumf_bonus && Math.abs(databaseTransaction.amount-trumfTransaction.belop) < 0.1  && sameDay(new Date(databaseTransaction.date), new Date(trumfTransaction.transaksjonsTidspunkt));
 		});
 		if (databaseTransaction) {
 			trumfTransaction.transaction_id = databaseTransaction.id;
