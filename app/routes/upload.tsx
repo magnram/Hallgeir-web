@@ -94,9 +94,6 @@ export default function TransactionUpload() {
 			if(listItems.filter(a => a.id == accountId && a.active).length == 0) setAccountId("")
 		});
 	}
-
-	console.log(listItems.filter(a => a.id == accountId))
-	console.log(accountId)
 	
 	const [paymentName, setPaymentName] = useState<string>(getSuggestedName());
 
@@ -156,7 +153,6 @@ export default function TransactionUpload() {
 		
 				const dateColumns = dateColumnsWithDates.map(a => a[0])
 
-				console.log(colNameWithRows)
 				const amountColumns = colNameWithRows
 					.filter((a) => (a[1].length*0.9 <= (a[1] as unknown as string[]).filter(b => b && b.match(/^[+-]?\d+([\.,]\d+)?$/g) && parseInt(b) > -60000 && parseInt(b) < 60000).length))
 					.map(a => a[0])
@@ -167,7 +163,7 @@ export default function TransactionUpload() {
 				setColumns({
 					"Dato": {...columns["Dato"], csvColumns: dateColumns, value: dateColumns.length == 1 ? dateColumns[0] : ""},
 					"Beskrivelse": {...columns["Beskrivelse"], csvColumns: restColumns, value: restColumns && restColumns.length == 1 ? restColumns[0] : ""},
-					"Beløp": {...columns["Beløp"], csvColumns: amountColumns, value: dateColumns.length == 1 ? dateColumns[0] : ""},
+					"Beløp": {...columns["Beløp"], csvColumns: amountColumns, value: amountColumns.length == 1 ? amountColumns[0] : ""},
 					"Kortbruker": {...columns["Kortbruker"], csvColumns: restColumns},
 				})
       };

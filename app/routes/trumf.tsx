@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import Header from "~/components/Header";
 import Toast from "~/components/Toast";
 import CopyIcon from "~/icons/CopyIcon";
-
-import type { ToastProps } from "~/components/Toast";
-import { ActionArgs, json} from "@remix-run/node";
+import { json } from "@remix-run/node";
 import { uploadTrumf } from "~/models/trumf.server";
 import { requireUserId } from "~/session.server";
 import { Form } from "@remix-run/react";
 
+import type { ToastProps } from "~/components/Toast";
+import type { ActionArgs} from "@remix-run/node";
 
 export async function action({ request }: ActionArgs) {
 	const user_id = await requireUserId(request);

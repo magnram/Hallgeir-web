@@ -28,8 +28,6 @@ const ReceiptModal = ({ transaction_id, onClose}: ReceiptModalProps) => {
 	const handleClose = () => {
 		onClose();
 	}
-
-	console.log(trumfListItems)
 	
 	return (
 		<div className="fixed inset-0 z-40">

@@ -76,7 +76,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ id, description, amou
 	return (
 		<>
 			{ showReceipt && <ReceiptModal transaction_id={id} onClose={() => setShowReceipt(false)}  /> }
-			<div className={`my-2 shadow-sm cursor-pointer ${excluded ? 'bg-gray-100' : 'bg-white'}`}>
+			<div className={`my-2 shadow-sm cursor-pointer`}>
 				<div onClick={() => setExpanded(!expanded)}>
 					<div className={`p-2 pb-0 flex justify-between ${trumf_bonus && "mb-[-1rem]"}`}>
 						<div className='flex gap-1 w-full'> 
@@ -102,8 +102,8 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ id, description, amou
 						</div>
 					)}
 					<button className='flex justify-center pb-1 w-full border-b-[1px] border-solid border-gray-200'>
-						{!expanded && <AngleDownIcon className='w-4 h-4 text-gray-300 dark:text-white' />}
-						{expanded && <AngleUpIcon className='w-4 h-4 text-gray-300 dark:text-white' />}
+						{!expanded && <AngleDownIcon className='w-4 h-4 text-gray-300' />}
+						{expanded && <AngleUpIcon className='w-4 h-4 text-gray-300' />}
 					</button>
 				</div>
 				{expanded && (
